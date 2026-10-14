@@ -1,0 +1,26 @@
+{
+  "zone_source": {
+    "provider": "USGS",
+    "dataset": "Watershed Boundary Dataset",
+    "level": "HUC-8",
+    "url": "https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/WBD/National/",
+    "local_path": "data/geography/wbd_huc8_simplified.geojson",
+    "boundary_method": "point_in_polygon",
+    "version": "recorded in the GeoJSON metadata sidecar"
+  },
+  "study_area": {
+    "latitude_min": 41.9,
+    "latitude_max": 49.1,
+    "longitude_min": -125.0,
+    "longitude_max": -116.5
+  },
+  "elevation_m": {
+    "min": 500.0,
+    "max": 3500.0
+  },
+  "keep_elements": [
+    "SNOW", "SNWD", "WESD", "WESF", "MDSF", "DASF",
+    "PRCP", "MDPR", "DAPR",
+    "TMAX", "TMIN", "TAVG"
+  ]
+}

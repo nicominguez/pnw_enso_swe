@@ -1,0 +1,7 @@
+.venv
+__pycache__/
+.DS_Store
+data/geography/wbd_huc8.geojson
+data/01_stations.csv
+data/02_land_daily.csv
+data/03_land_weekly.csv
