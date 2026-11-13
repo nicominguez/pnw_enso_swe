@@ -1,0 +1,18 @@
+{
+  "elevation_m": {
+    "min": 500.0,
+    "max": 4500.0
+  },
+  "keep_elements": [
+    "TAVG", "PRCP", "WTEQ"
+  ],
+  "date_range": {
+    "start": "1980-12-01",
+    "end": "2026-4-01"
+  },
+  "month_range": {
+    "start": "12",
+    "end": "4"
+  },
+  "minimum_station_seasons": 30
+}
