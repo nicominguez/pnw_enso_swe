@@ -2,7 +2,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx,booktabs,subcaption,amsmath,wrapfig,float}
 \usepackage[super,sort&compress]{natbib} % citas numéricas en superíndice
-\usepackage[hidelinks]{hyperref}         % \href y enlaces; cargar el último
+\usepackage{hyperref}                    % \href y enlaces; cargar el último
+\hypersetup{hidelinks}
 \graphicspath{{images/}}
 \renewcommand{\refname}{Referencias}
 \setlength{\bibsep}{1pt}
@@ -13,11 +14,11 @@
     \item \textbf{Código de grupo:} 
     \item \textbf{Participantes:} Nicolás Mínguez Aguirre
     \item \textbf{Título:} Efecto de \textit{El Niño Southern Oscillation (ENSO)} en \textit{Snow Water Equivalent (SWE)} según zonas y elevaciones del \textit{Pacific Northwest, EE.UU.}
-    \item \textbf{Enlace dataset:}
+    \item \textbf{Enlace dataset:} \href{https://www.kaggle.com/datasets/nicomnguez/enso-and-swe-by-zone-and-elevation-pnw}{Kaggle}; \href{https://github.com/nicominguez/pnw_enso_swe}{GitHub}.
 \end{itemize}
 \section{Presentación}
 En la zona del \textit{Pacific Northwest} en la costa oeste del pacífico, la cantidad de agua acumulada en la nieve, medida en \textit{Snow Water Equivalent} (SWE) es útil para anticipar sequías o inundaciones. Esta variable depende de muchos factores: desde temperatura y precipitación, hasta circulaciones atmosféricas, humedad, radiación solar y muchos otros inmedibles. 
-Sin embargo, el índice de anomalía de la temperatura superficial del mar en la región Niño 3.4 (ENSO)\cite{psl} resume en un solo indicador el estado de la circulación atmosférico-oceánica de gran escala que condiciona esos factores. Por ello, aunque no sea el mejor predictor de SWE, es especialmente útil, porque sus oscilaciones permiten predicciones con más antelación que otros factores, y es externo al SWE (el SWE no influye en el ENSO).
+Sin embargo, el índice de anomalía de la temperatura superficial del mar en la región Niño 3.4 (ENSO) resume en un solo indicador el estado de la circulación atmosférico-oceánica de gran escala que condiciona esos factores\cite{enso_climate}. Por ello, aunque no sea el mejor predictor de SWE, es especialmente útil, porque sus oscilaciones permiten predicciones con más antelación que otros factores, y es externo al SWE (el SWE no influye en el ENSO).
 La cuestión de interes es si la señal de ENSO en el SWE difiere según zona o elevación dentro de la región.
 \begin{center}
 ENSO $\rightarrow$ \{TAVG, PRCP, otros factores\} $\xrightarrow[\text{elevación}]{\text{zona}}$ SWE
@@ -26,7 +27,7 @@ ENSO $\rightarrow$ \{TAVG, PRCP, otros factores\} $\xrightarrow[\text{elevación
 \textit{Dataset} construido a partir de dos fuentes:
 \begin{itemize}
     \item \textbf{SNOTEL}: red automática de sensores de nieve y clima de montaña del NRCS (USDA) en el oeste de EE.UU.; datos mensuales y metadatos de estación vía API REST AWDB\cite{awdb}.
-\item \textbf{NOAA PSL}: laboratorio de la NOAA de investigación meteorológica, climática e hidrológica; anomalía mensual de temperatura superficial del mar en Niño 3.4 (ENSO) vía .csv\cite{psl}.
+\item \textbf{NOAA PSL}: laboratorio de la NOAA de investigación meteorológica, climática e hidrológica; anomalía mensual de temperatura superficial del mar en Niño 3.4 (ENSO) vía .csv\cite{psl_csv}.
 \end{itemize}
 La mayor parte de SNOTEL se instaló alrededor del 1980\cite{mote2008}, lo que fija el estudio en los inviernos 1980/81-2025/26; cada invierno se denota por el año en que termina (2025/26 $\rightarrow$ temporada 2026).
 \begin{table}
@@ -47,9 +48,9 @@ NOAA PSL & Numérica & \texttt{ENSO}$^{*}$\\
 \end{table}
  \newpage
  \section{Objetivos}
-El trabajo recoge los datos dentro de la zona y franja temporal de estudio definidos, luego se estudian y se preparan esos datos, y finalmente se aplica un breve ANOVA para ver si el modelo resulta significativo.
+El trabajo recoge los datos dentro de la zona y franja temporal de estudio definidos, luego se estudian y se preparan esos datos, y finalmente se ajusta un modelo lineal (ANCOVA). ANCOVA es un modelo de regresión lineal que combina predictores categóricos y covariables continuas; aquí la zona es categórica y ENSO y \texttt{elevation\_within\_zone} son continuas.
 \begin{center}
-\small Fuentes $\xrightarrow[\text{recolección}]{\text{O1}}$ DS1 $\xrightarrow[\text{preparación}]{\text{O2}}$ DS2 $\xrightarrow[\text{análisis}]{\text{O3}}$ DS3 (ANOVA)
+\small Fuentes $\xrightarrow[\text{recolección}]{\text{O1}}$ DS1 $\xrightarrow[\text{preparación}]{\text{O2}}$ DS2 $\xrightarrow[\text{análisis}]{\text{O3}}$ \underbrace{\mathrm{DS3}}_{\text{ANCOVA} }$
 \end{center}
  \subsection{O1: Qué puntos existen?}
  \begin{itemize}
@@ -64,8 +65,8 @@ El trabajo recoge los datos dentro de la zona y franja temporal de estudio defin
  \subsection{O3: Como usamos los puntos?}
  \begin{itemize}
 \item Decidir si SWE y ENSO requieren transformación para que la pendiente sea comparable entre estaciones.
-\item Estudiar la asociación entre zona y elevación y si es neceasrio restringir las estaciones a un rango de elevación común.
-\item Analizar la señal $\beta_1$ según zona y elevación mediante un ANOVA parsimonioso e interpretar resultados.
+\item Estudiar la asociación entre zona y elevación y si es necesario considerar una elevación relativa a cada zona.
+\item Analizar la señal $\beta_1$ según zona y elevación mediante un modelo parsimonioso e interpretar sus resultados.
  \end{itemize}
 \section{Desarrollo}
 \subsection{O1: Qué puntos existen?}
@@ -113,10 +114,10 @@ ENSO (\textit{mean}) & $-$0.04 & $-$0.37 & $-$0.04 \\
 
 La tabla (Tab.~\ref{tab:ac}) muestra la autocorrelación muestral ($r_{\mathrm{Pearson}}$) en \textit{Stampede Pass}. La serie mensual incluye la anomalía de SWE (sin la media de cada mes, para excluir el ciclo estacional); la estacional usa el pico de SWE y la media del ENSO. $^{*}$Niño 3.4 ya es una anomalía.
 
-A nivel mensual la dependencia es fuerte (anomalía de SWE 0.80, ENSO 0.95): el tamaño efectivo se reduce a $n_{\mathrm{ef}}\approx5$ para el SWE y $n_{\mathrm{ef}}\approx1$ para el ENSO, e inflaría la significación. Tras condensar por temporada la dependencia disminuye (SWE 0.08, ENSO $-$0.04) y $n_{\mathrm{ef}}$ es del orden de $n$. La excepción es el ENSO a dos temporadas ($-0.37$), que supera la banda $\pm2/\sqrt{n}\approx\pm0.3$ y refleja la alternancia habitual de fases\cite{psl}; se asume como dependencia residual.
+A nivel mensual la dependencia es fuerte (anomalía de SWE 0.80, ENSO 0.95): el tamaño efectivo se reduce a $n_{\mathrm{ef}}\approx5$ para el SWE y $n_{\mathrm{ef}}\approx1$ para el ENSO, e inflaría la significación. Tras condensar por temporada la dependencia disminuye (SWE 0.08, ENSO $-$0.04) y $n_{\mathrm{ef}}$ es del orden de $n$. La excepción es el ENSO a dos temporadas ($-0.37$), que supera la banda $\pm2/\sqrt{n}\approx\pm0.3$ y refleja la alternancia habitual de fases de ENSO\cite{enso_climate}; se asume como dependencia residual.
 
 \subsubsection{Agregación}
-La unidad de instancia es la temporada, y una muestra independiente, una estación-temporada. Las variables numéricas, funciones del mes dentro de cada temporada, se agregan como indica la Tabla~\ref{tab:agg}.
+La unidad de instancia es la temporada, y una muestra independiente, una estación-temporada. Las variables numéricas, funciones del mes dentro de cada temporada, se agregan:
 \begin{table}[ht]
 \centering
 \small
@@ -136,11 +137,11 @@ ENSO (Celsius)& media  & Resume la persistencia sin explotar ruido mensual.\\
 
 \begin{wrapfigure}{r}{0.3\textwidth}
 \centering
-\includegraphics[width=\linewidth]{usda/swe_2024_map.jpeg}
+\includegraphics[width=\linewidth]{usda/swe_2024_map_cropped.jpeg}
 \caption{Mapa de SWE en 2024 (USDA)\cite{imap}.}
 \label{fig:map}
 \end{wrapfigure}
-TAVG y PRCP no entran al modelo; se conservan en DS1 para la detección de valores atípicos. Zona (Fig.~\ref{fig:map}) y elevación son constantes en cada estación y se conservan sin codificar: la elevación es continua y exacta, y la zona es una etiqueta nominal, pues cualquier condificación numérica derivada de la geografía (coordenadas, distancia a la costa o a un centroide) incorporaría la elevación mediante la superficie terrestre, y el código HUC solo refleja jerarquía administrativa. Su relación se estudia en O3.
+TAVG y PRCP no entran al modelo; se conservan en DS1 para la detección de valores atípicos. Zona (Fig.~\ref{fig:map}) y elevación son constantes en cada estación y se conservan sin codificar. Ambas están inevitablemente asociadas: cada zona es una superficie geográfica con un rango de elevaciones. Las coordenadas y las distancias geográficas podrían codificar orden o proximidad, pero no son necesarias para la comparación categórica de zonas de este estudio; por ello la zona se retiene como variable nominal.
 
 \subsection{O2: Qué puntos sirven?}
 \subsubsection{Mediciones incompletas}
@@ -149,7 +150,7 @@ Solo SWE y ENSO entran al modelo; para ellos, la incompletud de una estación-te
 \item SWE (máximo): si falta un mes (p.~ej., marzo), probablemente no se mide el pico real y el valor se subestima, por lo que no es comparable con el de una temporada completa.
 \item ENSO (media): no tiene valores faltantes; no requiere tratamiento.
 \end{itemize}
-Se eliminan las estación-temporadas sin los cinco meses de la ventana dic--abr ($3.30\%$) en lugar de imputar el SWE. Imputarlo con estaciones vecinas (\textit{hot-deck} por vecinos más cercanos) incorpora por construcción la señal de ENSO que comparten (\textit{data leakage}), y con otras temporadas de la misma estación (p.~ej., su media) atenúa la pendiente; en ambos casos se añaden filas sin información independiente. La eliminación solo sesgaría la pendiente si la ausencia dependiera del ENSO (p.~ej., fallos de sensores en tormentas intensas); se contrasta con la correlación de Spearman entre el ENSO de cada temporada y la fracción de estaciones descartadas en ella ($\rho=0.1105$, $p=0.4646$).
+Se eliminan las estación-temporadas sin los cinco meses de la ventana dic--abr ($3.30\%$) en lugar de imputar el SWE. La imputación por la estación más cercana puede importar la señal de ENSO compartida y la estructura de zonas y elevaciones vecinas; imputar con otras temporadas de la misma estación elimina la respuesta estacional de ENSO observada y atenúa la pendiente. Ambas opciones crean pseudo-observaciones, no evidencia independiente. La eliminación solo sesgaría la pendiente si la ausencia dependiera del ENSO (p.~ej., fallos de sensores en tormentas intensas); se contrasta con la correlación de Spearman entre el ENSO de cada temporada y la fracción de estaciones descartadas en ella ($\rho=0.1105$, $p=0.4646$).
 
 \subsubsection{Cantidad y dispersión de puntos por estación}
 Se examina \textit{Stampede Pass}, con densidad temporal consistente (Fig.~\ref{fig:enso_swe}).
@@ -172,75 +173,56 @@ Se observan dos patrones:
 \item El SWE tiende a ser mayor en La Niña que en El Niño, con variabilidad considerable (algunas temporadas Niño superan a algunas Niña): la señal existe pero es moderada.
 \item El SWE decrece con el tiempo, sobre todo en los últimos años, por factores ajenos al ENSO (circulación atmosférica, calentamiento a largo plazo): se controla en O3 para no atribuirlo al ENSO.
 \end{itemize}
-Ajustar una recta en (b) es razonable, pero su pendiente solo se estima con precisión si la estación tiene suficientes temporadas y sin grandes huecos en los extremos. Se impone un único límite que cubre ambos: $m\ge30$ de las 46 temporadas (como mucho 15 sin medición), con lo que el \textit{dataset} pasa de $X=11085$ a $Y=10021$ estación-temporadas. 
+Ajustar una recta en (b) es razonable, pero su pendiente solo se estima con precisión si la estación tiene suficientes temporadas y sin grandes huecos en los extremos. Se impone un único límite que cubre ambos: $m\ge30$ de las 46 temporadas (como mucho 15 sin medición), con lo que el \textit{dataset} pasa de 11085 a 10021 estación-temporadas.
 \subsection{O3: Cómo usamos los puntos?}
 
-Interesa saber si la pendiente en (Fig.~\ref{fig:enso_swe}) cambia con la zona y la elevación. Para compararla entre estaciones hay que fijar la escala de SWE y ENSO y asegurar que zona y elevación no se confunden.
+Interesa saber si la pendiente en Fig.~3b cambia con la zona y la elevación. Para compararla entre estaciones hay que fijar la escala de SWE y ENSO y asegurar que zona y elevación no se confunden.
 
 \subsubsection{SWE y ENSO}
-Las unidades no afectan al contraste, pero la escala sí: en mm, el efecto absoluto del ENSO crece con el volumen de nieve, y por tanto con la elevación, aun con el mismo efecto relativo; comparar $\beta_1$ en bruto mezclaría ambos. Por ello se usa $\log(1+\mathrm{SWE})$ (Box--Cox con $\lambda=0$ y desplazamiento 1 por los valores nulos; $\hat\lambda=0$), con lo que $\beta_1$ es un efecto multiplicativo comparable entre estaciones y la asimetría cambia de $1.2365$ a $-1.7669$ (Fig.~\ref{fig:dist}). El ENSO ya es una anomalía aproximadamente simétrica (asimetría $0.4533$), aunque no se fuerza normalidad; solo se estandariza a $\sigma$ para expresar $\beta_1$ por desviación típica, sin cambiar su forma (Fig.~\ref{fig:dist}). No se estandariza el SWE por estación: dividir por una desviación propia de cada estación impediría leer $\beta_1$ como multiplicador.
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{o3/distributions.png}
-\caption{Densidades de SWE y ENSO antes y después de la transformación, con ejes independientes (rojo: unidades originales, verde: unidades transformadas). El modelo usa $\log(1+\mathrm{SWE})$ sin estandarizar por estación y ENSO estandarizado globalmente; esta estandarización cambia la escala, pero no normaliza ENSO.}
-\label{fig:dist}
-\end{figure}
+Las unidades no afectan al contraste, pero la escala sí: en mm, el efecto absoluto del ENSO crece con el volumen de nieve, y por tanto con la elevación, aun con el mismo efecto relativo; comparar $\beta_1$ en bruto mezclaría ambos. Por ello se usa $\log(1+\mathrm{SWE})$ (Box--Cox con $\lambda=0$ y desplazamiento 1 por los valores nulos; $\hat\lambda=0$), con lo que $\beta_1$ es un efecto multiplicativo comparable entre estaciones y la asimetría cambia de $1.2365$ a $-1.7669$. El ENSO se mantiene en sus unidades originales de anomalía ($^\circ$C); su asimetría es moderada ($0.4533$), aunque no se fuerza normalidad. Así, $\beta_1$ representa el cambio en $\log(1+\mathrm{SWE})$ por cada $1^\circ$C de anomalía ENSO, y $100(e^{\beta_1}-1)\%$ es el cambio porcentual de $1+\mathrm{SWE}$. No se estandariza el SWE por estación: dividir por una desviación propia de cada estación impediría leer $\beta_1$ como multiplicador.
 
 \subsubsection{Zona y elevación}
-Las zonas ocupan rangos de elevación distintos, así que $\beta_1$ frente a la zona arrastraría la elevación, y viceversa. Se ilustran tres estaciones representativas, a elevaciones baja, media y alta, según su zona (HUC6 como proxy) y elevación (Fig.~\ref{fig:o3}a). Se fija una banda de elevación $[630.9,2816.4]\,\mathrm{m}$ en la que toda zona conservada tenga al menos 3 estaciones; se descartan las estaciones fuera de la banda y las zonas que no llegan a 3 (0 zonas). La banda se fija sin usar SWE ni $\beta_1$, para no sesgar la selección. La confusión se mide con la $\eta^2$ ajustada de la elevación por zona ($R^2$ de elevación$\sim$zona), preferible a la $V$ de Cramér, que exigiría discretizar la elevación; el valor es $0.6479$ antes y después, por lo que ambas variables no son completamente separables. Tras la restricción, la relación de $\beta_1$ por estación (de $\log(1+\mathrm{SWE})\sim\mathrm{ENSO}+\mathrm{temporada}$) con la elevación se ilustra con tres estaciones (Fig.~\ref{fig:o3}b); el ajuste cuadrático con todas las estaciones es cóncavo ($p=2.405\times10^{-26}$): se espera un $|\beta_1|$ máximo en torno al umbral lluvia--nieve ($\beta_1<0$), una campana que un término lineal no capta.
-\begin{figure}[H]
-\centering
-\begin{subfigure}[t]{.48\linewidth}\centering
-\caption{Tres estaciones representativas y banda común}
-\includegraphics[width=\linewidth]{o3/stations_zone_elevation.png}
-\end{subfigure}
-\hfill
-\begin{subfigure}[t]{.48\linewidth}\centering
-\caption{$\hat{\beta}_1$ por elevación en tres estaciones}
-\includegraphics[width=\linewidth]{o3/beta_elevation.png}
-\end{subfigure}
-\caption{Zona y elevación: (a) tres estaciones representativas y banda común; (b) pendiente por estación.}
-\label{fig:o3}
-\end{figure}
-\subsubsection{Modelo} Se ajusta \texttt{log1p(SWE) $\sim$ temporada + zona + elev + ENSO + ENSO:zona + ENSO:elev} con sumas de cuadrados tipo II: las dos interacciones responden a la pregunta del estudio, y se omiten la triple y zona:elev por parsimonia. La zona es nominal; la elevación se factoriza en terciles dentro de la banda, pues una campana no cabe en un término lineal y los terciles la captan sin imponer forma (se pierde información intra-tercil; el \textit{dataset} conserva \texttt{elevation\_m}; se observan 18 celdas zona--tercil vacías); el ENSO se mantiene continuo, ya que factorizarlo perdería información y desalinearía el modelo con $\beta_1$. Formalmente es, pues, un ANOVA con una covariable continua. Se inspeccionan los residuos (Shapiro--Wilk $p=3.451\times10^{-61}$; Breusch--Pagan $p=1.548\times10^{-152}$, evidencia de no normalidad y heterocedasticidad). El contraste tiene poca rigurosidad: estaciones vecinas comparten ENSO y clima, las filas no son independientes y el tamaño efectivo para el ENSO está acotado por las 46 temporadas, así que los $p$-valores son orientativos y se prioriza el tamaño del efecto (Tabla~\ref{tab:mult}). ENSO$\times$zona: $F=2.1890$, $p=0.002044$; ENSO$\times$elevación: $F=3.9468$, $p=0.01935$.
+En las 229 estaciones elegibles (20 zonas con al menos tres estaciones), la asociación descriptiva entre zona y elevación se cuantifica a nivel de estación mediante $\eta^2$ ajustada $=0.6479$ ($\eta^2=0.6772$). Por tanto, para interpretar efectos de elevación se usa la elevación centrada dentro de cada zona, \texttt{elevation\_within\_zone} (elevación menos la media de su zona), que conserva las comparaciones entre zonas sin atribuirles las diferencias de nivel.
+\subsubsection{Modelo}
+Se ajusta el siguiente modelo lineal (ANCOVA) parsimonioso:
+\[
+\begin{aligned}
+\texttt{SWE\_log1p \textasciitilde{} season + C(zone) + elevation\_within\_zone + ENSO}\\
+\texttt{+ ENSO:C(zone) + ENSO:elevation\_within\_zone}.
+\end{aligned}
+\]
+La elevación permanece continua para conservar su información; solo se discretiza en tres bandas relativas para la tabla de presentación. La descomposición clásica de sumas de cuadrados tipo II se muestra solo descriptivamente: los residuos presentan no normalidad y heterocedasticidad (Shapiro--Wilk $p=1.269\times10^{-58}$; Breusch--Pagan $p=1.027\times10^{-134}$), por lo que sus $p$-valores no se interpretan como inferencia válida. Para la inferencia se mantienen los estimadores OLS, pero se usa una covarianza robusta agrupada por estación (corrección de grupos finitos) y contrastes de Wald $\chi^2$ conjuntos, con $\alpha=0.05$. ENSO$\times$zona: $\chi^2_{19}=309.83$, $p=1.92\times10^{-54}$; ENSO$\times$elevación intra-zona: $\chi^2_1=50.25$, $p=1.35\times10^{-12}$. Estos contrastes indican heterogeneidad global, no significación de cada pendiente en cada celda. La tabla muestra multiplicadores estimados; la significación de una celda concreta requeriría un contraste de combinación lineal, corrección por comparaciones múltiples y una covarianza que tratase también el ENSO común por temporada. Las filas estación-temporada repiten estación y comparten el ENSO de cada temporada; con solo 46 temporadas no es posible separar bien ese choque común mediante una covarianza de dos vías estable. Por ello estos resultados son exploratorios y limitados para generalizar (Tabla~\ref{tab:mult}).
 \begin{table}[H]
 \centering
-\small
-\begin{tabular}{lccc}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.85}
+\begin{tabular}{lrrr}
 \toprule
-Zona & Elev.\ baja & Elev.\ media & Elev.\ alta \\
+Zona & $[\bar e-3s,\bar e-s]$ (m) & $[\bar e-s,\bar e+s]$ (m) & $[\bar e+s,\bar e+3s]$ (m) \\
 \midrule
-170101 & 0.885 & 0.941 & 0.958 \\
-170102 & 0.858 & 0.913 & 0.929 \\
-170103 & 0.839 & 0.893 & -- \\
-170200 & 0.945 & 1.005 & -- \\
-170300 & 0.887 & 0.943 & -- \\
-170401 & -- & -- & 0.930 \\
-170402 & -- & 0.938 & 0.955 \\
-170501 & 0.886 & 0.943 & 0.959 \\
-170502 & -- & 0.936 & -- \\
-170601 & 0.862 & 0.916 & 0.932 \\
-170602 & -- & 0.929 & 0.945 \\
-170603 & 0.833 & 0.886 & 0.902 \\
-170701 & 0.841 & 0.894 & -- \\
-170702 & -- & 0.920 & -- \\
-170703 & 0.857 & 0.911 & -- \\
-170800 & 0.787 & 0.837 & -- \\
-170900 & 0.727 & -- & -- \\
-171003 & 0.843 & 0.896 & -- \\
-171100 & 0.824 & 0.876 & 0.892 \\
-171200 & -- & 0.922 & 0.938 \\
+170101 & 0.838 & 0.911 & 0.989 \\
+171200 & 0.846 & 0.921 & 1.002 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
 \bottomrule
 \end{tabular}
-\caption{Multiplicador de $1+\mathrm{SWE}$ ($e^{\hat\beta}$) por $+1\sigma$ de ENSO; $<1$ significa menos nieve en El Niño.}
+\caption{Cada celda es el multiplicador $M$ de $1+\mathrm{SWE}$ para una anomalía ENSO de $+1^\circ$C, evaluado en el punto medio de la banda de elevación intra-zona (respectivamente $\bar e_z-2s_z$, $\bar e_z$ y $\bar e_z+2s_z$). Las bandas usan $\bar e_z$ y $s_z$, la media y la desviación estándar intra-zona de cada zona. Para un cambio ENSO $\Delta E$, el cambio porcentual de $1+\mathrm{SWE}$ es $100(M^{\Delta E}-1)$. La tabla muestra dos zonas representativas; el CSV conserva la cuadrícula completa.}
 \label{tab:mult}
 \end{table}
-\newpage
-\subsection{Conclusión}
+\section{Conclusión}
+
+El objetivo fue preparar un conjunto de datos de SNOTEL y NOAA para describir cómo varía la relación entre SWE y ENSO según la zona y la elevación. Se eligió la estación-temporada para reducir la autocorrelación mensual y se aplicó una agregación funcional: máximo de SWE, media de ENSO, media de TAVG y suma de PRCP. Las estación-temporadas incompletas se eliminaron porque no garantizan observar el máximo de SWE; además, se filtraron las estaciones con menos de 30 de las 46 temporadas y se contrastó descriptivamente el posible sesgo por faltantes mediante Spearman. Finalmente, se usaron $\log(1+\mathrm{SWE})$, $\eta^2$, el centrado de la elevación dentro de zona y un ANCOVA-OLS con interacciones ENSO--zona y ENSO--elevación. Los contrastes de Wald agrupados por estación ($\alpha=0.05$) detectaron heterogeneidad global de la señal, aunque la tabla de multiplicadores es descriptiva y no prueba significación en cada celda.
+
+La preparación resolvió de forma sencilla problemas importantes de escala, autocorrelación y confusión entre zona y elevación. Python, junto con \texttt{pandas}, \texttt{scipy} y \texttt{statsmodels}, permitió mantener un flujo reproducible y cuantificar las decisiones. Sin embargo, el periodo aporta solo 46 valores de ENSO, compartidos por todas las estaciones de cada temporada; los faltantes reducen aún más la información y la asociación zona--elevación dificulta separar sus efectos. La no normalidad, la heterocedasticidad y el choque ENSO común hacen que los resultados sean exploratorios, no una inferencia generalizable.
+
+El ENSO se utilizó como predictor exógeno sin modelar sus mecanismos físicos, pero es un fenómeno bien estudiado y medido mediante variables disponibles en la práctica. El estudio ganaría con más estaciones, más temporadas, series completas y variables meteorológicas o geográficas menos correlacionadas. También serían útiles imputaciones validadas que aprovechasen dependencias temporales, espaciales y entre variables, así como remuestreos por estaciones y temporadas; estas mejoras aportarían información y una incertidumbre más realista sin confundir valores imputados con nuevas observaciones independientes.
 
 \begingroup\footnotesize
-\begin{thebibliography}{4}
-\bibitem{psl} NOAA Physical Sciences Laboratory, ``Monthly Niño 3.4 anomaly index, long record (1870--present)'', serie temporal en CSV, 2026. \url{https://psl.noaa.gov/data/timeseries/month/data/nino34.long.anom.csv} (consultado el 13/11/2026).
+\section{Referencias}
+\renewcommand{\refname}{}
+\begin{thebibliography}{5}
+\bibitem{enso_climate} NOAA, ``Understanding Climate: Oceanic Niño Index'', Climate.gov, s.~f.\ \url{https://www.climate.gov/news-features/understanding-climate/climate-variability-oceanic-nino-index} (consultado el 13/11/2026).
+\bibitem{psl_csv} NOAA Physical Sciences Laboratory, ``Monthly Niño 3.4 anomaly index, long record (1870--present)'', serie temporal en CSV, 2026. \url{https://psl.noaa.gov/data/timeseries/month/data/nino34.long.anom.csv} (consultado el 13/11/2026).
 \bibitem{awdb} USDA Natural Resources Conservation Service, National Water and Climate Center, ``Air and Water Database (AWDB) REST API, v1'', 2026. Base: \url{https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1}; documentación: \url{https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html} (consultado el 13/11/2026).
 \bibitem{mote2008} P.~Mote, A.~Hamlet y E.~Salath\'e, ``Has spring snowpack declined in the Washington Cascades?'', \emph{Hydrol. Earth Syst. Sci.}, vol.~12, n.\textsuperscript{o}~1, pp.~193--206, 2008. doi:\href{https://doi.org/10.5194/hess-12-193-2008}{10.5194/hess-12-193-2008}.
 \bibitem{imap} USDA NRCS, National Water and Climate Center, ``Interactive Map (iMap): snow water equivalent (WTEQ), \% de la mediana 1991--2020''. \href{https://nwcc-apps.sc.egov.usda.gov/imap/#version=2&elements=&networks=!&states=!&counties=!&hucs=&minElevation=&maxElevation=&elementSelectType=any&activeOnly=true&activeForecastPointsOnly=true&hucLabels=false&hucIdLabels=false&hucParameterLabels=true&stationLabels=&overlays=&overlays=&basinOpacity=75&basinNoDataOpacity=25&basemapOpacity=100&maskOpacity=0&mode=stations&openSections=dataElement,parameter,date,basin,options,elements,location,networks&controlsOpen=true&popup=&popupMulti=&popupBasin=&base=esriNgwm&displayType=station&basinType=6&dataElement=WTEQ&depth=-8&parameter=PCTMED&frequency=DAILY&duration=I&customDuration=&dayPart=E&monthPart=E&forecastPubDay=1&forecastExceedance=50&useMixedPast=true&seqColor=1&divColor=7&scaleType=D&scaleMin=&scaleMax=&referencePeriodType=POR&referenceBegin=1991&referenceEnd=2020&minimumYears=20&hucAssociations=true&relativeDate=-1&lat=42.300&lon=-114.300&zoom=4.5}{https://nwcc-apps.sc.egov.usda.gov/imap/} (consultado el 13/11/2026).

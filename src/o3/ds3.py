@@ -36,27 +36,15 @@ stations = stations[stations["huc6"].isin(retained_zones)]
 if stations.empty:
     raise ValueError("No HUC6 proxy zone has at least three stations.")
 
-# The widest valid common band spans the retained stations' observed elevations.
-band_min = stations["elevation_m"].min()
-band_max = stations["elevation_m"].max()
-stations = stations[stations["elevation_m"].between(band_min, band_max)]
-
 df = df[df["station_key"].isin(stations["station_key"])].copy()
 df["SWE_log1p"] = np.log1p(df["SWE"])
-enso_mean = df["enso"].mean()
-enso_sd = df["enso"].std()
-if not np.isfinite(enso_sd) or enso_sd == 0:
-    raise ValueError("ENSO must have a non-zero standard deviation.")
-df["ENSO"] = (df["enso"] - enso_mean) / enso_sd
+df["ENSO"] = df["enso"]
 
-# Assign station-level elevation terciles so all seasons from one station agree.
 stations = stations.copy()
-rank = stations["elevation_m"].rank(method="first")
-stations["elevation_tercile"] = pd.qcut(
-    rank, 3, labels=["low", "medium", "high"]
-)
-df = df.drop(columns=["elevation_tercile"], errors="ignore").merge(
-    stations[["station_key", "elevation_tercile"]],
+zone_means = stations.groupby("huc6")["elevation_m"].transform("mean")
+stations["elevation_within_zone"] = stations["elevation_m"] - zone_means
+df = df.drop(columns=["elevation_within_zone"], errors="ignore").merge(
+    stations[["station_key", "elevation_within_zone"]],
     on="station_key",
     how="inner",
 )

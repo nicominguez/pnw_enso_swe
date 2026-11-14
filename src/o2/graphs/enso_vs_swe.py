@@ -26,14 +26,6 @@ axis.text(
     transform=axis.transAxes,
     va="top",
 )
-axis.text(
-    0.04,
-    0.88,
-    rf"$\hat{{\beta}}_1 = {slope:.2f}$",
-    transform=axis.transAxes,
-    va="top",
-    color="tab:red",
-)
 axis.grid(alpha=0.25)
 output = ROOT / "images" / "o2" / "enso_vs_swe.png"
 output.parent.mkdir(parents=True, exist_ok=True)
