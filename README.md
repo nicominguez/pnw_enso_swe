@@ -35,7 +35,7 @@ non-normality, and only 46 seasonal ENSO values are shared by all stations.
 | [`data/ds2.csv`](data/ds2.csv) | O2 output |
 | [`data/ds3.csv`](data/ds3.csv) | O3 output |
 | [`src/`](src/) | Reproducible scripts |
-| [`LabFinal_Minguez.tex`](LabFinal_Minguez.tex) | Full report |
+| [`LabFinal_Minguez.pdf`](LabFinal_Minguez.pdf) | Full report |
 
 Dataset: **[Kaggle — ENSO and SWE by zone and elevation (PNW)](https://www.kaggle.com/datasets/nicomnguez/enso-and-swe-by-zone-and-elevation-pnw)**.
 
