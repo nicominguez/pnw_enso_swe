@@ -11,15 +11,16 @@ flowchart LR
     S[Sources<br/>SNOTEL + NOAA PSL]
     S -->|O1 · recolección y agregación| D1[DS1<br/>datos estacionales]
     D1 -->|O2 · control de calidad| D2[DS2<br/>datos completos]
-    D2 -->|O3 · transformación y análisis| D3[DS3<br/>datos para ANCOVA]
+    D2 -->|O3 · transformación y validación| D3[DS3<br/>datos estación-temporada]
 ```
 
 - **O1 / DS1:** datos mensuales convertidos a temporadas diciembre–abril.
   SWE se agrega con el máximo y ENSO con la media.
 - **O2 / DS2:** se eliminan temporadas incompletas y estaciones con menos de
   30 temporadas completas.
-- **O3 / DS3:** `SWE` se transforma con `log1p`, la elevación se centra dentro
-  de cada zona y se estudia la interacción ENSO–zona–elevación mediante ANCOVA.
+- **O3 / DS3:** `SWE` se transforma con `log1p`; la elevación se mantiene
+  numérica hasta definir bandas globales fijas y se contrasta la asociación
+  zona-elevación antes de considerar un modelo inferencial.
 
 Los resultados son exploratorios: existen heterocedasticidad, no normalidad y
 solo 46 valores estacionales de ENSO compartidos por todas las estaciones.

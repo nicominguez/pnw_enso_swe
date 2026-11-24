@@ -1,27 +1,29 @@
-"""Descriptive association between zone and station elevation."""
+"""Descriptive association between categorical zone and fixed elevation bands."""
 
 from pathlib import Path
 
 import pandas as pd
+from scipy.stats import chi2_contingency
 
 
 ROOT = Path(__file__).resolve().parents[3]
 df = pd.read_csv(ROOT / "data" / "ds3.csv")
-stations = df[["zone", "station_name", "elevation_m"]].drop_duplicates()
-groups = stations.groupby("zone")["elevation_m"]
-grand_mean = stations["elevation_m"].mean()
-ss_total = ((stations["elevation_m"] - grand_mean) ** 2).sum()
-ss_between = sum(
-    len(values) * (values.mean() - grand_mean) ** 2
-    for _, values in groups
-)
-n = len(stations)
-k = stations["zone"].nunique()
-eta2 = ss_between / ss_total
-adjusted_eta2 = 1 - (1 - eta2) * (n - 1) / (n - k)
 
-print(f"stations: {n}")
-print(f"zones: {k}")
-print(f"zone/elevation eta2 adjusted: {adjusted_eta2:.4f}")
-print(f"zone/elevation eta2: {eta2:.4f}")
-print(f"within-zone elevation SD: {groups.std().mean():.2f} m")
+stations = df[
+    ["zone", "station_name", "elevation_m", "elevation_band"]
+].drop_duplicates()
+contingency = pd.crosstab(stations["zone"], stations["elevation_band"])
+chi2, p_value, degrees_of_freedom, _ = chi2_contingency(contingency)
+cramers_v = (
+    (chi2 / len(stations))
+    / min(contingency.shape[0] - 1, contingency.shape[1] - 1)
+) ** 0.5
+
+print(f"stations: {len(stations)}")
+print(f"zones: {stations['zone'].nunique()}")
+print(f"zone/elevation chi-squared: {chi2:.4f}")
+print(f"zone/elevation degrees of freedom: {degrees_of_freedom}")
+print(f"zone/elevation p-value: {p_value:.4g}")
+print(f"zone/elevation Cramer's V: {cramers_v:.4f}")
+print("contingency table:")
+print(contingency.to_string())

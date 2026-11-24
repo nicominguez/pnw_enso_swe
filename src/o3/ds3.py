@@ -31,22 +31,18 @@ stations = stations[
 # Use HUC6 as the explicitly selected proxy for the paper's nominal zone.
 df["zone"] = df["huc6"]
 zone_counts = stations.groupby("huc6")["station_key"].nunique()
-retained_zones = zone_counts[zone_counts >= 3].index
+retained_zones = zone_counts[zone_counts >= 6].index
 stations = stations[stations["huc6"].isin(retained_zones)]
 if stations.empty:
-    raise ValueError("No HUC6 proxy zone has at least three stations.")
+    raise ValueError("No HUC6 proxy zone has at least six stations.")
 
 df = df[df["station_key"].isin(stations["station_key"])].copy()
 df["SWE_log1p"] = np.log1p(df["SWE"])
 df["ENSO"] = df["enso"]
-
-stations = stations.copy()
-zone_means = stations.groupby("huc6")["elevation_m"].transform("mean")
-stations["elevation_within_zone"] = stations["elevation_m"] - zone_means
-df = df.drop(columns=["elevation_within_zone"], errors="ignore").merge(
-    stations[["station_key", "elevation_within_zone"]],
-    on="station_key",
-    how="inner",
+df["elevation_band"] = pd.cut(
+    df["elevation_m"],
+    bins=[-np.inf, 1500.0, 2100.0, np.inf],
+    labels=["baja", "media", "alta"],
 )
 
 df = df.drop(columns=["station_key"]).sort_values(
