@@ -9,6 +9,7 @@
 \renewcommand{\refname}{Referencias}
 \setlength{\bibsep}{1pt}
 \setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\emergencystretch=3em
 
 \begin{document}
 
@@ -21,7 +22,7 @@
 \end{itemize}
 
 \section{Presentación}
-En el \textit{Pacific Northwest}, el agua acumulada en la nieve, medida como \textit{Snow Water Equivalent} (SWE), ayuda a anticipar sequías e inundaciones. El SWE depende de temperatura, precipitación y otras variables atmosféricas difíciles de medir. El índice Niño 3.4 resume parte de la circulación atmosférico-oceánica a gran escala que condiciona estos factores\cite{enso_climate}; Por ello, aunque no sea el mejor predictor de SWE, es especialmente útil, porque sus oscilaciones permiten predicciones con más antelación que otros factores y es externo al SWE.
+En el \textit{Pacific Northwest}, el agua acumulada en la nieve, medida como \textit{Snow Water Equivalent} (SWE), ayuda a anticipar sequías e inundaciones. El SWE depende de la temperatura, la precipitación y otros factores atmosféricos difíciles de medir. El índice Niño 3.4 resume parte de la circulación atmosférico-oceánica a gran escala que condiciona estos factores\cite{enso_climate}. Por ello, aunque no sea el mejor predictor de SWE, es especialmente útil: sus oscilaciones permiten realizar predicciones con mayor antelación que otros factores y son externas al SWE.
 
 La cuestión de interés es si la señal de ENSO en SWE difiere según zona o elevación dentro de la región. Zona y elevación forman dos agrupaciones geográficas relacionadas, por lo que su solapamiento se revisa en el análisis y se considera al interpretar los resultados.
 \begin{center}
@@ -29,7 +30,7 @@ ENSO $\rightarrow$ \{TAVG, PRCP, otros factores\} $\xrightarrow[\text{banda de e
 \end{center}
 
 \section{Dataset}
-\textit{Dataset} construido a partir de dos fuentes:
+El \textit{dataset} se construye a partir de dos fuentes:
 \begin{itemize}
 \item \textbf{SNOTEL}: datos mensuales y metadatos de estaciones de montaña del NRCS (USDA) obtenidos mediante la API REST AWDB\cite{awdb}.
 \item \textbf{NOAA PSL}: anomalía mensual de temperatura superficial del mar en Niño 3.4, obtenida en CSV\cite{psl_csv}.
@@ -54,27 +55,27 @@ NOAA PSL & Numérica continua & ENSO$^{*}$ \\
 
 \newpage
 \section{Objetivos}
-Se recoge la información de SNOTEL y NOAA dentro de la zona y franja temporal de estudio, se estudian y se preparan esos datos a nivel estación-temporada y se examina si una comparación de SWE por ENSO requiere una escala o agrupaciones válidas simplificativas por factores para emplear un \textit{three-way} ANOVA.
+Se recoge información de SNOTEL y NOAA dentro de la zona y el periodo temporal definidos, se estudian y preparan los datos a nivel estación-temporada y se determina si una comparación de SWE por ENSO requiere una transformación o una simplificación categórica para el análisis por factores.
 \begin{center}
-\small Fuentes $\xrightarrow[\text{recolección}]{\text{O1}}$ DS1 $\xrightarrow[\text{preparación}]{\text{O2}}$ DS2 $\xrightarrow[\text{análisis}]{\text{O3}}$ \underbrace{\mathrm{DS3}}_{\text{ANOVA}}$
+\small Fuentes $\xrightarrow[\text{recolección}]{\text{O1}}$ DS1 $\xrightarrow[\text{preparación}]{\text{O2}}$ DS2 $\xrightarrow[\text{análisis}]{\text{O3}}$ $\underbrace{\mathrm{DS3}}_{\text{ANOVA}}$
 \end{center}
 
 \subsection{O1: ¿Qué puntos existen?}
 \begin{itemize}
 \item Decidir la unidad temporal considerando la granularidad de las variables y resolver la autocorrelación temporal de SWE y ENSO.
-\item Decidir como agregar SWE, ENSO, TAVG y PRCP, y si es adecuado codificar la zona o la elevación.
+\item Decidir cómo agregar SWE, ENSO, TAVG y PRCP y si resulta adecuado codificar la zona o la elevación.
 \end{itemize}
 
 \subsection{O2: ¿Qué puntos sirven?}
 \begin{itemize}
-\item Tratar puntos con mediciones incompletas y considerar si su eleminiación implica sesgo.
+\item Tratar las mediciones incompletas y considerar si su eliminación introduce sesgo.
 \item Establecer cuántas temporadas y estaciones hacen comparable cada punto.
 \end{itemize}
 
 \subsection{O3: ¿Cómo usamos los puntos?}
 \begin{itemize}
 \item Decidir si SWE y ENSO requieren transformaciones y estudiar la discretización de ENSO, zona y elevación.
-\item Realizar estudio estadístico con un \thextit{three-way} ANOVA.
+\item Realizar un análisis estadístico mediante un ANOVA de tres vías si sus supuestos son válidos.
 \end{itemize}
 
 \newpage
@@ -119,7 +120,7 @@ ENSO media & $-$0.04 & $-$0.37 & $-$0.04 \\
 \end{tabular}
 \caption{Después (estacional)}
 \end{subtable}
-\caption{Autocorrelación muestral de Pearson por \texit{lagging} en \textit{Stampede Pass}.}
+\caption{Autocorrelación muestral de Pearson por desfase en \textit{Stampede Pass}.}
 \label{tab:ac}
 \end{table}
 
@@ -129,16 +130,17 @@ La tabla~\ref{tab:ac} muestra que la dependencia mensual es fuerte, mientras que
 La unidad de instancia es la temporada, y una muestra independiente, una estación-temporada. Las variables numéricas, funciones del mes dentro de cada temporada, se agregan:
 \begin{table}[ht]
 \centering
-\small
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{lp{1.8cm}p{2.0cm}p{6.2cm}}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lp{1.5cm}p{1.8cm}p{5.7cm}}
 \toprule
 Variable & Rol & Agregación & Razón \\
 \midrule
 SWE (mm) & numérica & máximo & mide el volumen máximo acumulado \\
 TAVG (\(^{\circ}\)C) & numérica & media & resume persistencia mensual \\
 PRCP (mm) & numérica & suma & mide volumen acumulado \\
-ENSO (\(^{\circ}\)C) & numérica & media & eesume persistencia estacional \\
+ENSO (\(^{\circ}\)C) & numérica & media & resume persistencia estacional \\
 Zona & categórica & constante & evita codificación geográfica arbitraria \\
 Elevación (m) & numérica & constante & se mantiene continua \\
 \bottomrule
@@ -147,11 +149,11 @@ Elevación (m) & numérica & constante & se mantiene continua \\
 \label{tab:agg}
 \end{table}
 
-TAVG y PRCP no entran al modelo principal. Se conservan en DS1 para estudiar calidad y outliers por si fuera necesario. Se descarta en este estudio por la fieabilidad de las fuentes.
+TAVG y PRCP no entran al modelo principal. Se conservan en DS1 para detectar valores atípicos y para futuras comprobaciones de calidad. Se excluyen del análisis final porque no aportan una variable categórica común a la pregunta central.
 \begin{figure}[htbp]
 \centering
 \begin{minipage}{0.64\linewidth}
-Zona es una etiqueta nominal de HUC6, cual se podría codificar zona mediante latitud, distancia al océano o alguna vectorización de la etiqueta en sí, pero esto se trataría de realizar un estudio geospacial, cuya complejidad supera la deseada para este estudio.
+La zona se representa mediante una etiqueta nominal de HUC6. Esta etiqueta podría codificarse mediante latitud, distancia al océano o una categorización geoespacial más compleja, pero ese enfoque ampliaría el estudio más allá de la comparación categórica planteada.
 \end{minipage}
 \hfill
 \begin{minipage}{0.30\linewidth}
@@ -166,7 +168,7 @@ Zona es una etiqueta nominal de HUC6, cual se podría codificar zona mediante la
 \subsubsection{Mediciones incompletas}
 La incompletitud se evalúa solo para SWE y ENSO, las variables continuas del análisis: si falta un mes dentro de diciembre--abril, el máximo de SWE puede subestimar el pico real. ENSO no tiene valores faltantes en la serie utilizada.
 
-Se eliminan estación-temporadas sin los cinco meses requeridos ($3.30\%$), en vez de imputar SWE. Imputar desde estaciones cercanas introduciría información espacial compartida; imputar desde otras temporadas de la misma estación disminuiría la respuesta estacional observada. Ambas opciones crearían pseudo-observaciones.
+Se eliminan las estaciones-temporada sin los cinco meses requeridos ($3.30\%$), en lugar de imputar SWE. Imputar desde estaciones cercanas introduciría información espacial compartida; imputar desde otras temporadas de la misma estación disminuiría la respuesta estacional observada. Ambas opciones crearían pseudo-observaciones.
 
 La eliminación solo sesgaría un efecto si dependiera de ENSO. La correlación de Spearman entre ENSO estacional y la fracción de estaciones descartadas fue $\rho=0.1105$, $p=0.4646$.
 
@@ -197,8 +199,9 @@ AWDB almacena los elementos en unidades inglesas y DS1 los convierte a mm y $^{\
 
 \begin{table}[ht]
 \centering
-\small
-\begin{tabular}{lp{3.5cm}p{7cm}}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lp{3.2cm}p{6.3cm}}
 \toprule
 Variable & Tratamiento & Justificación \\
 \midrule
@@ -214,7 +217,7 @@ Zona & categórica HUC6 & Mantiene unidades geográficas nominales \\
 
 La asimetría de SWE pasa de $1.2365$ a $-1.7669$ después de log1p, por lo que la transformación no elimina el punto de SWE igual a cero. ENSO conserva asimetría moderada ($0.4533$). Como análisis sensible, ENSO puede categorizarse en Niño, Neutral y Niña con el umbral $\pm0.5\,^{\circ}$C, pero esta clasificación no reemplaza su magnitud continua.
 
-La elevación se divide en bandas globales fijas: baja por debajo de 1.500 m, media de 1.500 a 2.100 m y alta por encima de 2.100 m. Las cotas son comunes a todas las zonas y producen 67, 90 y 59 estaciones respectivamente en DS3.
+La elevación se divide en bandas globales fijas: baja por debajo de 1.500 m, media de 1.500 a 2.100 m y alta por encima de 2.100 m. Las cotas son comunes a todas las zonas y producen 67, 90 y 59 estaciones, respectivamente, en DS3.
 
 \subsubsection{Modelo}
 Zona y elevación se mantienen como factores separados. Para cuantificar su asociación se conserva la elevación de estación y se construye una tabla de contingencia zona $\times$ banda. En las 216 estaciones finales, $\chi^2=160.7883$, con 32 grados de libertad y $p=4.319\times10^{-19}$; el $V$ de Cramér es $0.6101$. La asociación es fuerte y no desaparece al discretizar elevación.
@@ -250,18 +253,19 @@ Total & 67 & 90 & 59 & 216 \\
 \label{tab:contingency}
 \end{table}
 
-El modelo ANOVA de tres vías solo sería válido si se satisficieran independencia entre unidades, normalidad residual, varianza homogénea, población completa de celdas y rango completo del diseño. En los datos no se cumplen la normalidad ni la homocedasticidad: con el modelo diagnóstico principal, el test de Shapiro--Wilk obtuvo $p=8.17\times10^{-60}$ y el de Breusch--Pagan $p=8.994\times10^{-151}$. Además, las filas comparten estación y temporada; solo hay 46 valores ENSO comunes y no 9.427 réplicas independientes.
+El modelo ANOVA de tres vías solo sería válido si se satisficieran la independencia entre unidades, la normalidad residual, la varianza homogénea, la población completa de celdas y el rango completo del diseño. En los datos no se cumplen la normalidad ni la homocedasticidad: con el modelo diagnóstico principal, el test de Shapiro--Wilk obtuvo $p=8.17\times10^{-60}$ y el de Breusch--Pagan $p=8.994\times10^{-151}$. Además, las filas comparten estación y temporada; solo hay 46 valores ENSO comunes y no 9.427 réplicas independientes.
 
 Por tanto, no se presenta ANOVA como inferencia válida ni se reportan $p$-valores de Wald, $F$ o multiplicadores derivados de ese ajuste. La clasificación ENSO ±0.5 °C y las bandas de elevación pueden servir como ejercicio categórico de sensibilidad, pero después de comprobar cobertura y supuestos. No se ajustaron en este proyecto modelos extensos.
 
 \section{Conclusión}
-El proyecto preparó datos mensuales de SNOTEL y NOAA PSL en 9.427 filas estación-temporada, 216 estaciones y 17 zonas. Se condensaron temporadas diciembre--abril, se agregaron el máximo de SWE, la media de ENSO y TAVG y la suma de PRCP, y se eliminaron temporadas incompletas y estaciones con menos de 30 observaciones. Se mantuvieron zona y elevación como factores distintos, se usó $\log(1+\mathrm{SWE})$, y se definieron bandas globales de elevación de 1.500 y 2.100 m.
+El proyecto preparó datos mensuales de SNOTEL y NOAA PSL en 9.427 filas estación-temporada, 216 estaciones y 17 zonas. Se condensaron temporadas diciembre--abril, se agregaron el máximo de SWE, la media de ENSO y TAVG y la suma de PRCP, y se eliminaron temporadas incompletas y estaciones con menos de 30 observaciones. Se mantuvieron zona y elevación como factores distintos, se usó $\log(1+\mathrm{SWE})$ y se definieron bandas globales de elevación de 1.500 y 2.100 m.
 
 Las principales limitaciones son el tamaño efectivo de 46 temporadas ENSO, la repetición de estaciones, la dependencia residual temporal y la asociación zona--elevación. La normalidad residual y la homocedasticidad fallaron, por lo que el ANOVA no se considera aplicable. La discretización fija pierde gradientes internos, y cualquier variación geográfica o temporal puede confundirse con el efecto ENSO.
 
 Como alternativas futuras destacan ANCOVA con ENSO y elevación continuos, tests no paramétricos, remuestreo por bloque estacional, modelos mixtos con interceptos de estación y temporada y superficies temporales o espaciales. Estas opciones necesitarían covarianzas y supuestos adicionales, por lo que quedan fuera del alcance principal de preparación y descripción de datos.
 
 \begingroup\footnotesize
+\raggedright
 \section{Referencias}
 \renewcommand{\refname}{}
 \begin{thebibliography}{5}
