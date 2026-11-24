@@ -1,6 +1,6 @@
 # ENSO y SWE en el Pacific Northwest
 
-[Leer esta documentación en español](README.md).
+[Leer esta documentación en inglés.](README.md).
 
 Este proyecto estudia cómo cambia la relación entre **ENSO** (anomalía de
 temperatura del mar en Niño 3.4) y **SWE** (agua almacenada en la nieve) según
