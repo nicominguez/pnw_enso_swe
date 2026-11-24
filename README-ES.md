@@ -35,7 +35,7 @@ solo 46 valores estacionales de ENSO compartidos por todas las estaciones.
 | [`data/ds2.csv`](data/ds2.csv) | Salida de O2 |
 | [`data/ds3.csv`](data/ds3.csv) | Salida de O3 |
 | [`src/`](src/) | Scripts reproducibles |
-| [`LabFinal_Minguez.tex`](LabFinal_Minguez.tex) | Memoria completa |
+| [`LabFinal_Minguez.pdf`](LabFinal_Minguez.pdf) | Memoria completa |
 
 Dataset: **[Kaggle — ENSO and SWE by zone and elevation (PNW)](https://www.kaggle.com/datasets/nicomnguez/enso-and-swe-by-zone-and-elevation-pnw)**.
 
